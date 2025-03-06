@@ -1,4 +1,4 @@
-# Monad NFT Minter
+# Monad NFT Minter.
 
 A modular, command-line tool for minting NFTs on the Monad blockchain. Simplifies the process of interacting with NFT contracts by automatically detecting the correct mint function and parameters.
 
