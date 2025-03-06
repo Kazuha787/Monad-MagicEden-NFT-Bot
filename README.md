@@ -18,7 +18,7 @@ A modular, command-line tool for minting NFTs on the Monad blockchain. Simplifie
 1. Clone the repository:
 
 ```bash
-git clone https://github.com/WINGFO-HQ/Monad-MagicEden-NFT-Bot.git
+git clone https://github.com/Kazuha787/Monad-MagicEden-NFT-Bot.git
 cd Monad-MagicEden-NFT-Bot
 ```
 
