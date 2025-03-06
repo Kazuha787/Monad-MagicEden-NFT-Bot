@@ -1,0 +1,43 @@
+{
+  "name": "magiceden-mint",
+  "version": "1.0.0",
+  "description": "A modular NFT minting tool for Monad Testnet collections on Magic Eden",
+  "main": "index.js",
+  "type": "module",
+  "bin": {
+    "me-mint": "./index.js"
+  },
+  "scripts": {
+    "start": "node index.js",
+    "setup": "cp .env.template .env",
+    "lint": "eslint ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Kazuha787/Monad-MagicEden-NFT-Bot.git"
+  },
+  "keywords": [
+    "nft",
+    "magiceden",
+    "monad",
+    "blockchain",
+    "mint"
+  ],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Kazuha787/Monad-MagicEden-NFT-Bot/issues"
+  },
+  "homepage": "https://github.com/Kazuha787/Monad-MagicEden-NFT-Bot#README",
+  "dependencies": {
+    "axios": "^1.8.1",
+    "dotenv": "^16.4.7",
+    "ethers": "^5.7.2",
+    "chalk": "^4.1.2",
+    "inquirer": "^8.2.4",
+    "p-limit": "^2.3.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.57.0"
+  }
+}
