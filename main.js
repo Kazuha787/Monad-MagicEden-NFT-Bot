@@ -9,7 +9,7 @@ import MONAD_TESTNET from "./config/chain.js";
 
 dotenv.config(); // Load environment variables
 
-let globalMintVariant = "twoParams";
+let globalMintVariant = "twoParams"; 
 
 // Load wallets from .env
 const loadWallets = () => {
