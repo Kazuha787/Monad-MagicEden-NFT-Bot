@@ -1,41 +1,49 @@
 import inquirer from "inquirer";
 import chalk from "chalk";
 import { ethers } from "ethers";
+import dotenv from "dotenv";
 import { blockchain, nft, helpers } from "./api/index.js";
-import { ENV, loadWallets } from "./config/env.chain.js";
+import { ENV } from "./config/env.chain.js";
 import { ABI } from "./config/ABI.js";
 import MONAD_TESTNET from "./config/chain.js";
 
+dotenv.config(); // Load environment variables
+
 let globalMintVariant = "twoParams";
 
-const getCustomPrompt = (message, choices) => ({
-  type: "list",
-  message: message,
-  choices: choices.map((choice, i) => ({
-    name: i === 0 ? chalk.cyan(`> ${choice}`) : `  ${choice}`,
-    value: choice,
-  })),
-  prefix: "❓",
-});
+// Load wallets from .env
+const loadWallets = () => {
+  const wallets = Object.keys(process.env)
+    .filter((key) => key.startsWith("WALLET_"))
+    .map((key) => process.env[key]);
+
+  if (wallets.length === 0) {
+    console.error("❌ No wallets found in .env file!");
+    console.log("📌 Add wallets to .env file: WALLET_1=0xprivatekey1, WALLET_2=0xprivatekey2");
+    process.exit(1);
+  }
+
+  return wallets;
+};
 
 const displayBanner = () => {
   console.log(chalk.cyan("🔹╔════════════════════════════════════════════════════╗🔹"));
   console.log(chalk.cyan("🔹║             🚀 MONAD MINT AUTO BOT 🚀              ║🔹"));
-  console.log(chalk.cyan("🔹║      🤖 Automate your Magic Eden registration! 🤖  ║🔹"));
+  console.log(chalk.cyan("🔹║     🤖 Automate your Monad Testnet Minting! 🤖     ║🔹"));
   console.log(chalk.cyan("🔹║    💬 Developed by: https://t.me/Offical_Im_kazuha ║🔹"));
   console.log(chalk.cyan("🔹║    🛠️ GitHub: https://github.com/Kazuha787         🛠️║🔹"));
   console.log(chalk.cyan("🔹╠════════════════════════════════════════════════════╣🔹"));
   console.log(chalk.cyan("🔹║                                                    ║🔹"));
-  console.log(chalk.cyan("🔹║  🔥 ██╗  ██╗ █████╗ ███████╗██╗   ██╗██╗  ██╗ 🔥   ║🔹"));
-  console.log(chalk.cyan("🔹║  💎 ██║ ██╔╝██╔══██╗╚══███╔╝██║   ██║██║  ██║ 💎   ║🔹"));
-  console.log(chalk.cyan("🔹║  🚀 █████╔╝ ███████║  ███╔╝ ██║   ██║███████║ 🚀   ║🔹"));
-  console.log(chalk.cyan("🔹║  ⚡ ██╔═██╗ ██╔══██║ ███╔╝  ██║   ██║██╔══██║ ⚡   ║🔹"));
-  console.log(chalk.cyan("🔹║  🏆 ██║  ██╗██║  ██║███████╗╚██████╔╝██║  ██║ 🏆   ║🔹"));
-  console.log(chalk.cyan("🔹║  ❌ ╚═╝  ╚═╝╚═╝  ╚═╝╚══════╝ ╚═════╝ ╚═╝  ╚═╝ ❌   ║🔹"));
+  console.log(chalk.cyan("🔹║  ██╗  ██╗ █████╗ ███████╗██╗   ██╗██╗  ██╗ █████╗  ║🔹"));
+  console.log(chalk.cyan("🔹║  ██║ ██╔╝██╔══██╗╚══███╔╝██║   ██║██║  ██║██╔══██╗ ║🔹"));
+  console.log(chalk.cyan("🔹║  █████╔╝ ███████║  ███╔╝ ██║   ██║███████║███████║ ║🔹"));
+  console.log(chalk.cyan("🔹║  ██╔═██╗ ██╔══██║ ███╔╝  ██║   ██║██╔══██║██╔══██║ ║🔹"));
+  console.log(chalk.cyan("🔹║  ██║  ██╗██║  ██║███████╗╚██████╔╝██║  ██║██║  ██║ ║🔹"));
+  console.log(chalk.cyan("🔹║  ╚═╝  ╚═╝╚═╝  ╚═╝╚══════╝ ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝ ║🔹"));
   console.log(chalk.cyan("🔹║                                                    ║🔹"));
+  console.log(chalk.cyan("🔹║               Developed by KAZUHA 💙               ║🔹"));
   console.log(chalk.cyan("🔹╚════════════════════════════════════════════════════╝🔹"));
 };
-
 const extractContractAddress = (input) => {
   const magicEdenPattern =
     /magiceden\.io\/.*?\/(?:monad(?:-testnet)?\/)?([a-fA-F0-9x]{42})/i;
@@ -56,14 +64,10 @@ async function main() {
   displayBanner();
 
   const wallets = loadWallets();
-  if (wallets.length === 0) {
-    helpers.log.error("❌ No wallets found in .env file!");
-    helpers.log.normal("📌 Add a wallet to .env file: WALLET_1=0xprivatekey1");
-    return;
-  }
+  console.log(`✅ Loaded wallets: ${wallets.length}`);
 
-  const wallet = wallets[0];
   const provider = blockchain.createProvider(ENV.NETWORK);
+  
   const mintOptions = await inquirer.prompt({
     type: "list",
     name: "mintOption",
@@ -125,31 +129,33 @@ async function main() {
 
   helpers.log.info(`⛽ Using gasLimit: [${gasLimit}]  🛠️ Minting Method: [${globalMintVariant}]`);
 
-  try {
-    const result = await nft.executeMint(
-      contractAddress,
-      blockchain.createWallet(wallet.privateKey, provider),
-      gasLimit,
-      fee,
-      globalMintVariant,
-      mintPrice,
-      MONAD_TESTNET.TX_EXPLORER
-    );
+  for (const walletPrivateKey of wallets) {
+    console.log(`🚀 Minting with wallet: ${walletPrivateKey.slice(0, 6)}...${walletPrivateKey.slice(-4)}`);
 
-    if (result && result.successVariant && result.successVariant !== globalMintVariant) {
-      helpers.log.warning(`🔄 Updated mint method to: ${result.successVariant}`);
-      globalMintVariant = result.successVariant;
+    try {
+      const result = await nft.executeMint(
+        contractAddress,
+        blockchain.createWallet(walletPrivateKey, provider),
+        gasLimit,
+        fee,
+        globalMintVariant,
+        mintPrice,
+        MONAD_TESTNET.TX_EXPLORER
+      );
+
+      if (result && result.successVariant && result.successVariant !== globalMintVariant) {
+        helpers.log.warning(`🔄 Updated mint method to: ${result.successVariant}`);
+        globalMintVariant = result.successVariant;
+      }
+    } catch (err) {
+      helpers.log.error(`❌ Execution error: ${err.message}`);
     }
-  } catch (err) {
-    helpers.log.error(`❌ Execution error: ${err.message}`);
-    process.exit(1);
   }
 
-  helpers.log.success("✅🎉 Minting process completed successfully! 🚀🎨");
+  helpers.log.success("✅🎉 Minting process completed for all wallets! 🚀🎨");
 }
 
 main().catch((err) => {
   helpers.log.error(`❌ Execution error: ${err.message}`);
   process.exit(1);
 });
-  
