@@ -41,14 +41,31 @@ export const loadWallets = () => {
             privateKey: privateKey,
           });
         } catch (err) {
-          console.error(`Invalid private key`);
+          console.error(`私钥无效`);
         }
       }
     }
 
     return wallets;
   } catch (error) {
-    console.error("Error loading wallets:", error.message);
+    console.error("加载钱包时出错:", error.message);
     return [];
   }
 };
+
+export const validateEnv = () => {
+  const requiredEnvVars = ['NETWORK', 'PRIVATEKEY'];
+  const missing = requiredEnvVars.filter(key => !process.env[key]);
+  
+  if (missing.length > 0) {
+    throw new Error(`缺少必需的环境变量: ${missing.join(', ')}`);
+  }
+  
+  // 验证私钥格式
+  if (!process.env.PRIVATEKEY?.startsWith('0x')) {
+    throw new Error('私钥必须以 0x 开头');
+  }
+};
+
+// Add validation call
+validateEnv();
