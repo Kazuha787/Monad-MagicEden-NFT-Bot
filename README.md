@@ -46,9 +46,8 @@ npm install
 ## Usage
 
 Start the minting tool:
-
+Setup .Env
 ```bash
-#Setup .env
 nano .env
 ```
 #Start
