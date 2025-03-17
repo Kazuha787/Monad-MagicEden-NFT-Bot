@@ -49,10 +49,11 @@ Start the minting tool:
 
 ```bash
 #Setup .env
-npm run setup
-
+nano .env
+```
 #Start
-npm start
+```sh
+node main.js
 ```
 
 Follow the interactive prompts to:
